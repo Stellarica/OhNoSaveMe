@@ -4,12 +4,15 @@ import net.minestom.server.MinecraftServer
 import net.minestom.server.coordinate.Pos
 import net.minestom.server.entity.GameMode
 import net.minestom.server.entity.Player
+import net.minestom.server.event.player.PlayerBlockInteractEvent
 import net.minestom.server.event.player.PlayerLoginEvent
 import net.minestom.server.instance.block.Block
 import net.minestom.server.instance.generator.GenerationUnit
+import net.stellarica.server.crafts.starships.Starship
 import net.stellarica.server.multiblocks.MultiblockHandler
 import net.stellarica.server.multiblocks.MultiblockType
 import net.stellarica.server.util.OriginRelative
+import net.stellarica.server.util.gui.GuiManager
 
 
 fun main(args: Array<String>) {
@@ -30,8 +33,20 @@ fun main(args: Array<String>) {
 		player.respawnPoint = Pos(0.0, 42.0, 0.0)
 		player.gameMode = GameMode.CREATIVE
 	}
+	globalEventHandler.addListener(
+		PlayerBlockInteractEvent::class.java
+	) {	event ->
+		if (event.block == Block.EMERALD_BLOCK) {
+			Starship(event.blockPosition, event.instance, event.player).also {
+				it.detect()
+				it.pilot(event.player)
+			}
+		}
+	}
+
 
 	MultiblockHandler.registerListeners()
+	GuiManager.registerListeners()
 
 	MultiblockHandler.types.add(MultiblockType(
 		"test",
